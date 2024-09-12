@@ -1,0 +1,13 @@
+<%- include('layout', { title: 'Account' }) %>
+<div class="container">
+  <h1>Login</h1>
+
+  <% if (user) { %>
+    <p>Welcome, <%= user.name %>!</p>
+    <p>Email: <%= user.email %></p>
+    <a href="/logout">Logout</a>
+  <% } else { %>
+    <p>You are not logged in.</p>
+    <a href="/login">Login</a> or <a href="/register">Register</a>
+  <% } %>
+</div>

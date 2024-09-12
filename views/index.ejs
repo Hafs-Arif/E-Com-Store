@@ -1,0 +1,22 @@
+<%- include('layout', { title: 'Home' }) %>
+<div class="product-container">
+  <div id="products">
+    <% products.forEach(product => { %>
+        <div class="product">
+          <img src="<%= product.image %>" alt="<%= product.name%>">
+          <div class="description">
+            <h2> <%=product.name%> </h2> 
+            <p> <%=product.description%> </p>
+            <p> <%=product.price.toFixed(2)%>$ </p>
+
+            <a href="/add-to-cart/<%= product._id %>"><button class="btn btn-dark">Add to Cart</button></a>
+            
+          </div>
+          <hr>
+        </div>
+    <%})%>
+  </div>
+  <footer id="footer" class="text-white text-center py-3 mt-4 bg-dark">
+    <p id="f-para">&copy; 2024 E-Com Store</p>
+  </footer>
+</div>
