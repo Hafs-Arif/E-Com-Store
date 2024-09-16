@@ -5,24 +5,22 @@
         <div class="form-container signin">
             <form action="/login" method="post">
                 <h1>Log into your Account</h1>
-                <input  style="display: block; margin: auto;" type="email"
+                <input type="email" name="email"
                 placeholder="Email" required>
-                <input  style="display: block; margin: auto;" type="password"
+                <input type="password" name="password"
                 placeholder="Password" required>
                 <button class="btn btn-dark" type="submit" style="display: block; margin: auto;">Login</button>
             </form>
         </div>
         <div class="form-container signup">
             <form action="/register" method="post">
-                <h1>Register Here</h1>
-                <input type="text"
+                <h1>or Register Here</h1>
+                <input type="text" name="username"
                 placeholder="Type your name" required>
-                <input type="email"
+                <input type="email" name="email"
                 placeholder="Email" required>
-                <input type="password"
+                <input type="password" name="password" type="submit"
                 placeholder="Password" required>
-                <input type="password"
-                placeholder="Confirm password" required>
 
                 <button class="btn btn-dark" type="submit" style="display: block; margin: auto;">Register</button>
             </form>

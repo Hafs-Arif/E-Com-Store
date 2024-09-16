@@ -1,6 +1,6 @@
 <%- include('layout', { title: 'Account' }) %>
 <div class="container">
-  <h1>Login</h1>
+  <h1>Account</h1>
 
   <% if (user) { %>
     <p>Welcome, <%= user.name %>!</p>
@@ -8,6 +8,6 @@
     <a href="/logout">Logout</a>
   <% } else { %>
     <p>You are not logged in.</p>
-    <a href="/login">Login</a> or <a href="/register">Register</a>
+    <button class="btn btn-dark"><a style="text-decoration: none; color: white;" href="/login">Login</a></button>
   <% } %>
 </div>

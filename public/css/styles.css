@@ -7,6 +7,15 @@
     text-align: start;
 }
 
+.form-container{
+    text-align: center;
+}
+
+.signin input,.signup input{
+    display: block;
+    margin: auto auto 10px auto;
+}
+
 #products {
     margin: 30px;
     display: flex;
