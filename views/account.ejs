@@ -1,11 +1,16 @@
 <%- include('layout', { title: 'Account' }) %>
-<div class="container">
-  <h1>Account</h1>
+<div class="container" style="margin: auto; justify-content: space-between; flex-direction: row">
 
   <% if (user) { %>
-    <p>Welcome, <%= user.name %>!</p>
-    <p>Email: <%= user.email %></p>
-    <a href="/logout">Logout</a>
+    <div style="display: inline-block;">
+      <p>Welcome, <%= user.username %>!</p>
+      <p>Email: <%= user.email %></p>
+      <a href="/logout">Logout</a>
+    </div>
+    <div>
+      <img style="display: inline-block; height: 20vh; width: 20vh; border-radius: 50%;" src="<%= user.image %>" alt="img"> 
+    </div>
+
   <% } else { %>
     <p>You are not logged in.</p>
     <button class="btn btn-dark"><a style="text-decoration: none; color: white;" href="/login">Login</a></button>

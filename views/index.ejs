@@ -2,17 +2,16 @@
 <div class="product-container">
   <div id="products">
     <% products.forEach(product => { %>
-        <div class="product">
+        <div class="product" style="box-shadow: 2px 2px 10px 10px grey;">
           <img src="<%= product.image %>" alt="<%= product.name%>">
           <div class="description">
             <h2> <%=product.name%> </h2> 
             <p> <%=product.description%> </p>
             <p> <%=product.price.toFixed(2)%>$ </p>
 
-            <a href="/add-to-cart/<%= product._id %>"><button class="btn btn-dark">Add to Cart</button></a>
+            <a href="/add-to-cart/<%= product._id %>"><button class="btn btn-dark" style="position: relative; bottom: 5%;">Add to Cart</button></a>
             
           </div>
-          <hr>
         </div>
     <%})%>
   </div>

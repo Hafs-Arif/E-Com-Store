@@ -82,26 +82,33 @@ app.use((req, res, next) => {
 });
 
 app.get('/cart', (req, res) => {
-  if (!req.session.cart) {
-    return res.render('cart', { products: null });
-  }
-  let cart = new Cart(req.session.cart);
-  res.render('cart', { products: cart.generateArray(), totalPrice: cart.totalPrice });
+  const cart = req.session.cart ? new Cart(req.session.cart) : null;
+  // Fetch products from cart if cart exists
+  const products = cart ? cart.generateArray() : [];
+
+  res.render('cart', { cart: cart, products: products, totalPrice: cart ? cart.totalPrice : 0 });
 });
 
 app.get('/add-to-cart/:id', async (req, res) => {
   const productId = req.params.id;
-  let cart = new Cart(req.session.cart ? req.session.cart : {});
+  const cart = new Cart(req.session.cart ? req.session.cart : {});
 
   try {
     const product = await Product.findById(productId); // Fetch the product by its ID
     if (!product) {
       return res.redirect('/');
     }
+    
+    if (req.isAuthenticated()) {
     cart.add(product, product.id);
     req.session.cart = cart; // Save cart to session
     console.log(req.session.cart); // For debugging purposes
-    res.redirect('/');
+      return res.redirect('/');
+    } else {
+      res.redirect('/login');
+    }
+
+    // res.redirect('/');
   } catch (err) {
     console.error(err);
     res.status(500).send('Server Error');
@@ -118,26 +125,67 @@ app.get('/remove/:id', (req, res) => {
   req.session.cart = cart; // Update session with the modified cart
   res.redirect('/cart');
 });
-  
-  
-app.get('/account', (req,res) => {
-    const user = req.session.user || null;
 
-    if (!user) {
-      res.redirect('/login'); // Redirect to login if the user is not logged in
-    } else {
-      res.render('account', { user });
-    }
+app.get('/account', ensureAuthenticated, (req, res) => {
+  res.render('account.ejs', { user: req.user });
 });
 
-app.post('/login', passport.authenticate('local', {
-  successRedirect: '/', // Redirect to homepage upon success
-  failureRedirect: '/login', // Redirect to login page on failure
-  failureFlash: true // Enable flash messages for errors
-}));
+app.get('/logout', (req, res, next) => {
+
+  req.logout(function(err) {
+    if (err) {
+      return next(err);
+    }
+
+    // Optionally destroy the session
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Error destroying session:', err);
+      }
+
+      // Redirect to the login page or home after logout
+      res.redirect('/login');  // Redirect the user to the login page or home
+    });
+  });
+});
+
+
+function ensureAuthenticated(req, res, next) {
+  console.log("Authenticated:", req.isAuthenticated());
+  console.log("User Session:", req.user);
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect('/login');
+}
+
+app.post('/login', (req, res, next) => {
+  passport.authenticate('local', {
+    successRedirect: '/account', // Redirect to account page after successful login
+    failureRedirect: '/login',   // Redirect back to login if authentication fails
+    failureFlash: true           // Enable flash messages on failure
+  })(req, res, next);
+});
+
+app.post('/login', (req, res, next) => {
+  console.log('Login attempt:', req.body); // Debug incoming login data
+  passport.authenticate('local', (err, user, info) => {
+    if (err) { return next(err); }
+    if (!user) {
+      console.log('Authentication failed:', info.message); // Show error message in console
+      req.flash('error', info.message);
+      return res.redirect('/login');
+    }
+    req.logIn(user, (err) => {
+      if (err) { return next(err); }
+      console.log('Login successful for user:', user.email);
+      return res.redirect('/account');
+    });
+  })(req, res, next);
+});
 
 app.get('/login', (req,res) => {
-    res.render('reg');
+    res.render('reg', { message: req.flash('error') });
 });
 
 app.post('/register', async (req,res) => {
@@ -154,16 +202,16 @@ app.post('/register', async (req,res) => {
       return res.status(400).send('Password is required');
     }
 
-    console.log("Plain password (before hashing):", password);
+    //console.log("Plain password (before hashing):", password);
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    console.log("Hashed password:", hashedPassword);
+    // console.log("Hashed password:", hashedPassword);
 
     const newUser = new user({
       username,
       email,
-      password: hashedPassword,
+      password
     });
 
     await newUser.save();
@@ -176,7 +224,7 @@ app.post('/register', async (req,res) => {
       }
 
       req.flash('success', 'You are now registered and logged in.');
-      res.redirect('/');
+      res.redirect('/account');
     });
   } catch (err) {
     console.log(err);
@@ -184,41 +232,8 @@ app.post('/register', async (req,res) => {
   }
 });
 
-// app.post('/login', async (req,res) => {
-//   const { email, password } = req.body;
-
-
-
-//   try {
-//     const existingUser = await user.findOne({ email }).exec();
-//     if(!existingUser){
-//       res.status(404).send('User not found.Please register.');
-//     }
-
-//     console.log("Plain password: ", password); // Log plain password
-//     console.log("Hashed password in DB: ", existingUser.password);
-
-//     const isMatch = await bcrypt.compare(password, existingUser.password);
-//     if (!isMatch) {
-//       return res.status(400).send('Incorrect password.');
-//     }
-
-//     req.login(existingUser, (err) => {
-//       if (err) {
-//         console.log(err);
-//         return res.status(500).send('Server error during login.');
-//       }
-//       res.redirect('/account'); // Redirect to account page after successful login
-//     });
-//   } catch (err) {
-//     console.log(err);
-//     res.status(500).send('Server error');
-//   }
-// })
-
 app.post('/add-to-cart/:id', async (req, res) => {
   const productId = req.params.id;
-  const product = await Product.findById(productId);
 
   // Initialize cart if it doesn't exist
   if (!req.session.cart) {
@@ -229,6 +244,7 @@ app.post('/add-to-cart/:id', async (req, res) => {
     };
   }
 
+  const product = await Product.findById(productId);
   // Add product to the cart
   req.session.cart.items.push(product);
   req.session.cart.totalPrice += product.price;
