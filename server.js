@@ -23,10 +23,7 @@ const app = express();
 
 app.set("view engine", "ejs");
 
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.log(err));
 
@@ -234,7 +231,7 @@ app.post('/register', async (req,res) => {
 
 app.post('/add-to-cart/:id', async (req, res) => {
   const productId = req.params.id;
-
+  const product = await Product.findById(productId);
   // Initialize cart if it doesn't exist
   if (!req.session.cart) {
     req.session.cart = {
@@ -243,13 +240,10 @@ app.post('/add-to-cart/:id', async (req, res) => {
       totalQty: 0
     };
   }
-
-  const product = await Product.findById(productId);
   // Add product to the cart
   req.session.cart.items.push(product);
   req.session.cart.totalPrice += product.price;
   req.session.cart.totalQty += 1;
-
   res.redirect('/cart');
   res.send('Item added to cart!');
 });

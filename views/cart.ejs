@@ -1,26 +1,26 @@
 <%- include('layout', { title: 'Cart' }) %>
 <div class="container">
-    <% if (cart && cart.length == 0) { %>
-            <p>Your cart is empty.</p>
-        <% } else { %>
+    <% if (!cart || cart.totalQty === 0) { %> <!-- Proper check for empty cart -->
+        <p>Your cart is empty.</p>
+    <% } else { %>
         <ul id="cart">
-            <% products.forEach(function(product) { %>
-            <li>
-                <img  id="product" style="width: 3.5vh; height: 3.5vh; box-shadow: none;" src="<%- product.item.image %>">
-                 <%= product.item.name %> - $<%= product.price.toFixed(2) %>
-                <span>Quantity: <%= product.qty %> </span>
-                <a href="/remove/<%= product.item._id %>">remove</a>
-            </li>
+            <% cart.generateArray().forEach(function(product) { %> <!-- Looping through cart items -->
+                <li>
+                    <img id="product" style="width: 3.5vh; height: 3.5vh; box-shadow: none;" src="<%- product.item.image %>" alt="<%= product.item.name %>">
+                    <%= product.item.name %> - $<%= product.price.toFixed(2) %>
+                    <span>Quantity: <%= product.qty %></span>
+                    <a href="/remove/<%= product.item._id %>">remove</a>
+                </li>
             <% }) %>
         </ul>
         <div style="display: flex; margin: auto; justify-content: space-between; flex-direction: column;">
-            <h2 style="display: inline-block;">Total Price: $<%= totalPrice.toFixed(2) %></h2>
+            <h2 style="display: inline-block;">Total Price: $<%= cart.totalPrice.toFixed(2) %></h2>
             <button class="btn btn-dark" style="display: inline-block;">Checkout</button>  
         </div>
-
     <% } %>
     <a href="/">Continue Shopping</a>
 </div>
+
 <footer id="footer" class="text-white text-center py-3 mt-4 bg-dark">
     <p id="f-para">&copy; 2024 E-Com Store</p>
 </footer>

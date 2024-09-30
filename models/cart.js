@@ -1,10 +1,7 @@
 module.exports = function Cart(oldCart) {
-  // If oldCart exists, use its items; otherwise, initialize as an empty array
-  this.items = oldCart?.items || [];
-  this.totalQty = oldCart?.totalQty || 0;
-  this.totalPrice = oldCart?.totalPrice || 0;
-
-
+  this.items = oldCart.items || {}; // Store items in an object
+  this.totalQty = oldCart.totalQty || 0; // Total quantity of items in the cart
+  this.totalPrice = oldCart.totalPrice || 0; // Total price of the items in the cart
   // Add a new item or increase its quantity
   this.add = function(item, id) {
     let storedItem = this.items[id];
@@ -16,7 +13,6 @@ module.exports = function Cart(oldCart) {
     this.totalQty++;
     this.totalPrice += storedItem.item.price;
   };
-
   this.remove = function(id) {
     let storedItem = this.items[id];
     if (storedItem.qty > 1) {
@@ -29,10 +25,13 @@ module.exports = function Cart(oldCart) {
       this.totalPrice -=storedItem.item.price;
     }
   };
-
   // Generate an array of items for easy iteration
   this.generateArray = function() {
-    return Object.values(this.items);
+    let arr = [];
+    for (let id in this.items) {
+      arr.push(this.items[id]);
+    }
+    return arr;
   };
 };
   
